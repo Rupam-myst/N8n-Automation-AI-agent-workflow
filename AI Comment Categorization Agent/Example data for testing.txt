@@ -1,0 +1,32 @@
+Example Comments for Testing AI Feedback Classifier
+
+1. Great product! The interface is very clean and easy to use.
+   Expected Category: Positive Feedback
+
+2. The application crashes whenever I try to upload an image.
+   Expected Category: Bug Report Feedback
+
+3. It would be great if you could add a dark mode option in the next update.
+   Expected Category: Feature Request Feedback
+
+4. Your customer support response time is very slow.
+   Expected Category: Negative Feedback
+
+5. Maybe you should improve the dashboard layout to make it easier to navigate.
+   Expected Category: General Suggestion Feedback
+
+6. Please update the system soon.
+   Expected Category: Other Feedback
+
+7. I really like the new design of the website. Great job!
+   Expected Category: Positive Feedback
+
+8. The login page is not working properly. I cannot sign into my account.
+   Expected Category: Bug Report Feedback
+
+9. Adding two-factor authentication would improve account security.
+   Expected Category: Feature Request Feedback
+
+10. The website sometimes loads very slowly.
+    Expected Category: Negative Feedback
+
