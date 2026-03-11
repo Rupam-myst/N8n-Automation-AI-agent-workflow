@@ -1,0 +1,779 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Feedback Submission",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Report Issues or Suggestions."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0f3ae577-fa6e-461d-88fd-c61723e01983",
+      "name": "On form submission",
+      "webhookId": "a65097a0-815c-422d-a7d7-ab9e249e40f9"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Report Issues or Suggestions.'] }}\n\nYou are a feedback classification AI. Your task is to read a user feedback message and classify it into exactly one category.\n\nCategories:\n\nNegative Feedback → Complaints, dissatisfaction, frustration, or criticism about the product/service without mentioning a technical malfunction.\n\nBug Report Feedback → Technical issues such as crashes, errors, broken features, or something not working properly.\n\nFeature Request Feedback → User asks for a new feature or capability that does not currently exist.\n\nGeneral Suggestion Feedback → User suggests improvements or recommendations but not a completely new feature.\n\nPositive Feedback → Praise, appreciation, or satisfaction with the product or service.\n\nOther Feedback → Feedback that does not clearly match any category.\n\nInstructions:\n\nAnalyze the feedback carefully.\n\nChoose the single most appropriate category.\n\nIf multiple intents exist, choose the main intent.\n\nOutput rule (very important):\nReturn ONLY the category name, nothing else.\nDo not add explanations, punctuation, or extra text.\n\nFeedback:\n{feedback_text}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "387b36a4-4192-4ef3-bf89-9696a3d4150f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "1271c4d4-d007-4fb6-bf04-78dbc0b30a27",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "k73XZ5zEUyP6ZiT2",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "Negative Feedback",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "50745317-9e8c-4901-97a5-0abfcc5ed27d"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e5803128-0161-4d42-9404-7a35eff5307d",
+                    "leftValue": "Feature Request Feedback",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "a2a603b3-44c8-44f1-b9de-84ab9a4183a3",
+                    "leftValue": "Bug Report Feedback",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5363a7eb-157b-40b0-b622-1e4e28d6af22",
+                    "leftValue": "other feedback",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "3424d024-54a5-439c-9d9d-2fbdd46d5f14",
+                    "leftValue": "General Suggestion Feedback",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e46bb5bb-88af-465f-a178-90f380af00a1",
+                    "leftValue": "Positive Feedback",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "481ef900-b65d-49e5-b95c-59619a9fde97",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appe6jb3x0Y9y9KH6",
+          "mode": "list",
+          "cachedResultName": "Negative feedbacks",
+          "cachedResultUrl": "https://airtable.com/appe6jb3x0Y9y9KH6"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCAuRQEdMX0HutX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appe6jb3x0Y9y9KH6/tblCAuRQEdMX0HutX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "type of comment": "={{ $json.output }}",
+            "comment": "={{ $('On form submission').item.json['Report Issues or Suggestions.'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "type of comment",
+              "displayName": "type of comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "comment",
+              "displayName": "comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        912,
+        -336
+      ],
+      "id": "42e33a65-48a0-4756-adc1-7e2165a397aa",
+      "name": "Negative Feedback",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "e9uYYq8VrKpfI2Ph",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appDLhBg7NQVymU1T",
+          "mode": "list",
+          "cachedResultName": "Feature Request feedbacks",
+          "cachedResultUrl": "https://airtable.com/appDLhBg7NQVymU1T"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCAuRQEdMX0HutX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appe6jb3x0Y9y9KH6/tblCAuRQEdMX0HutX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "type of comment": "={{ $json.output }}",
+            "comment": "={{ $('On form submission').item.json['Report Issues or Suggestions.'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "type of comment",
+              "displayName": "type of comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "comment",
+              "displayName": "comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        -192
+      ],
+      "id": "cccd7a41-709f-4b46-aa69-3e57bcce00f8",
+      "name": "Feature Request Feedback",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "e9uYYq8VrKpfI2Ph",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appCG0Sxf3Z7L2R9M",
+          "mode": "list",
+          "cachedResultName": "other feedbacks",
+          "cachedResultUrl": "https://airtable.com/appCG0Sxf3Z7L2R9M"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCAuRQEdMX0HutX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appe6jb3x0Y9y9KH6/tblCAuRQEdMX0HutX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "type of comment": "={{ $json.output }}",
+            "comment": "={{ $('On form submission').item.json['Report Issues or Suggestions.'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "type of comment",
+              "displayName": "type of comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "comment",
+              "displayName": "comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1536,
+        -192
+      ],
+      "id": "5bf99545-3974-4905-9b83-7b3124514972",
+      "name": "Other Feedback",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "e9uYYq8VrKpfI2Ph",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appyoJsfwZbIsdzbV",
+          "mode": "list",
+          "cachedResultName": "General suggestion feedback",
+          "cachedResultUrl": "https://airtable.com/appyoJsfwZbIsdzbV"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCAuRQEdMX0HutX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appe6jb3x0Y9y9KH6/tblCAuRQEdMX0HutX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "type of comment": "={{ $json.output }}",
+            "comment": "={{ $('On form submission').item.json['Report Issues or Suggestions.'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "type of comment",
+              "displayName": "type of comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "comment",
+              "displayName": "comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1008,
+        96
+      ],
+      "id": "9d9a784f-d9b8-46a3-88bc-3096830c4ffb",
+      "name": "General Suggestion Feedback",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "e9uYYq8VrKpfI2Ph",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "applTeO9tLaMjC6pr",
+          "mode": "list",
+          "cachedResultName": "positive feedbacks",
+          "cachedResultUrl": "https://airtable.com/applTeO9tLaMjC6pr"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCAuRQEdMX0HutX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appe6jb3x0Y9y9KH6/tblCAuRQEdMX0HutX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "type of comment": "={{ $json.output }}",
+            "comment": "={{ $('On form submission').item.json['Report Issues or Suggestions.'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "type of comment",
+              "displayName": "type of comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "comment",
+              "displayName": "comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        128
+      ],
+      "id": "beb173b0-aec5-4ebf-b12e-83e0ec1bdce6",
+      "name": "Positive Feedback",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "e9uYYq8VrKpfI2Ph",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appWTNqadBBzm3HJn",
+          "mode": "list",
+          "cachedResultName": "Bug report feedbacks",
+          "cachedResultUrl": "https://airtable.com/appWTNqadBBzm3HJn"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblCAuRQEdMX0HutX",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appe6jb3x0Y9y9KH6/tblCAuRQEdMX0HutX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "type of comment": "={{ $json.output }}",
+            "comment": "={{ $('On form submission').item.json['Report Issues or Suggestions.'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "type of comment",
+              "displayName": "type of comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "comment",
+              "displayName": "comment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1264,
+        -208
+      ],
+      "id": "3eab5755-ea0c-4e6a-807c-ee6974c4c2e1",
+      "name": "Bug Report Feedback",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "e9uYYq8VrKpfI2Ph",
+          "name": "Airtable Personal Access Token account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Negative Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Feature Request Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Bug Report Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Other Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "General Suggestion Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Positive Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "cb183f5e-3645-4409-b76b-9306eea4109e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "68e4c6a88b3d537ad016391a91717e5826b55d3df75d0cfd24b90b193b5afc60"
+  },
+  "id": "SYJBo8vHSQEz4D3Z",
+  "tags": []
+}
